@@ -22,15 +22,6 @@ current_upstream_version() {
 
 latest_upstream_version() {
     git_remote_repo_latest_tag "${UPSTREAM_GIT_REPO:?}"
-#    git -c 'versionsort.suffix=-' ls-remote \
-#        --exit-code \
-#        --refs \
-#        --sort='version:refname' \
-#        --tags \
-#        "${UPSTREAM_GIT_REPO:?}" | \
-#        cut --delimiter='/' --fields=3 | \
-#        sort --version-sort --reverse | \
-#        head -1
 }
 
 update_latest_upstream_version() {
