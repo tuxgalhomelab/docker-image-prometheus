@@ -1,0 +1,84 @@
+# syntax=docker/dockerfile:1.3
+
+ARG BASE_IMAGE_NAME
+ARG BASE_IMAGE_TAG
+FROM ${BASE_IMAGE_NAME}:${BASE_IMAGE_TAG} AS with-scripts
+
+COPY scripts/start-prometheus.sh /scripts/
+
+ARG BASE_IMAGE_NAME
+ARG BASE_IMAGE_TAG
+FROM ${BASE_IMAGE_NAME}:${BASE_IMAGE_TAG}
+
+SHELL ["/bin/bash", "-c"]
+
+ARG USER_NAME
+ARG GROUP_NAME
+ARG USER_ID
+ARG GROUP_ID
+ARG PROMETHEUS_VERSION
+
+# hadolint ignore=DL4006,SC2086
+RUN --mount=type=bind,target=/scripts,from=with-scripts,source=/scripts \
+    set -E -e -o pipefail \
+    # Create the user and the group. \
+    && homelab add-user \
+        ${USER_NAME:?} \
+        ${USER_ID:?} \
+        ${GROUP_NAME:?} \
+        ${GROUP_ID:?} \
+        --create-home-dir \
+    # Download and install the release. \
+    && mkdir -p /tmp/prometheus \
+    && PKG_ARCH="$(dpkg --print-architecture)" \
+    && curl \
+        --silent \
+        --fail \
+        --location \
+        --remote-name \
+        --output-dir /tmp/prometheus \
+        https://github.com/prometheus/prometheus/releases/download/${PROMETHEUS_VERSION:?}/prometheus-${PROMETHEUS_VERSION#v}.linux-${PKG_ARCH:?}.tar.gz \
+    && curl \
+        --silent \
+        --fail \
+        --location \
+        --remote-name \
+        --output-dir /tmp/prometheus \
+        "https://github.com/prometheus/prometheus/releases/download/${PROMETHEUS_VERSION:?}/sha256sums.txt" \
+    && pushd /tmp/prometheus \
+    && grep "prometheus-${PROMETHEUS_VERSION#v}.linux-${PKG_ARCH:?}.tar.gz" sha256sums.txt | sha256sum -c \
+    && tar xvf prometheus-${PROMETHEUS_VERSION#v}.linux-${PKG_ARCH:?}.tar.gz \
+    && pushd prometheus-${PROMETHEUS_VERSION#v}.linux-${PKG_ARCH:?} \
+    && mkdir -p /opt/prometheus-${PROMETHEUS_VERSION:?}/bin /data/prometheus/{config,data} \
+    && mv promtool /opt/prometheus-${PROMETHEUS_VERSION:?}/bin \
+    && mv prometheus /opt/prometheus-${PROMETHEUS_VERSION:?}/bin \
+    && mv prometheus.yml /data/prometheus/config/config.yml \
+    && mv console_libraries /data/prometheus/ \
+    && mv consoles /data/prometheus/ \
+    && ln -sf /opt/prometheus-${PROMETHEUS_VERSION:?} /opt/prometheus \
+    && ln -sf /opt/prometheus/bin/prometheus /opt/bin/prometheus \
+    && ln -sf /opt/prometheus/bin/promtool /opt/bin/promtool \
+    && popd \
+    && popd \
+    # Copy the start-prometheus.sh script. \
+    && cp /scripts/start-prometheus.sh /opt/prometheus/ \
+    && ln -sf /opt/prometheus/start-prometheus.sh /opt/bin/start-prometheus \
+    # Set up the permissions. \
+    && chown -R ${USER_NAME:?}:${GROUP_NAME:?} /opt/prometheus-${PROMETHEUS_VERSION:?} /opt/prometheus /opt/bin/{prometheus,promtool,start-prometheus} /data/prometheus \
+    # Clean up. \
+    && rm -rf /tmp/prometheus \
+    && homelab cleanup
+
+# Expose the HTTP server port used by Prometheus.
+EXPOSE 9090
+
+# Use the healthcheck command part of prometheus as the health checker.
+HEALTHCHECK --start-period=1m --interval=30s --timeout=3s CMD curl --silent --fail --location http://localhost:9090/-/healthy
+
+ENV USER=${USER_NAME}
+ENV PATH="/opt/bin:${PATH}"
+
+USER ${USER_NAME}:${GROUP_NAME}
+WORKDIR /home/${USER_NAME}
+CMD ["start-prometheus"]
+STOPSIGNAL SIGQUIT
