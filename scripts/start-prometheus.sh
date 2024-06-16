@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -E -e -o pipefail
 
-prometheus_config="/data/prometheus/config/config.yml"
+prometheus_config="/data/prometheus/config/prometheus.yml"
 
 start_prometheus() {
     echo "Starting Prometheus ..."

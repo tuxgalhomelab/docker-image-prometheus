@@ -52,7 +52,7 @@ RUN --mount=type=bind,target=/scripts,from=with-scripts,source=/scripts \
     && mkdir -p /opt/prometheus-${PROMETHEUS_VERSION:?}/bin /data/prometheus/{config,data} \
     && mv promtool /opt/prometheus-${PROMETHEUS_VERSION:?}/bin \
     && mv prometheus /opt/prometheus-${PROMETHEUS_VERSION:?}/bin \
-    && mv prometheus.yml /data/prometheus/config/config.yml \
+    && mv prometheus.yml /data/prometheus/config/ \
     && mv console_libraries /data/prometheus/ \
     && mv consoles /data/prometheus/ \
     && ln -sf /opt/prometheus-${PROMETHEUS_VERSION:?} /opt/prometheus \
