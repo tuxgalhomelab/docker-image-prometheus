@@ -11,6 +11,10 @@ start_prometheus() {
     unset PROMETHEUS_CONFIG
     unset prometheus_config
 
+    # Configure umask to allow write permissions for the group by default
+    # in addition to the owner.
+    umask 0002
+
     exec prometheus \
         --config.file ${config:?} \
         --storage.tsdb.path /data/prometheus/data \
