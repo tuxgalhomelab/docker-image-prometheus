@@ -3,6 +3,12 @@ set -E -e -o pipefail
 
 prometheus_config="/data/prometheus/config/prometheus.yml"
 
+set_umask() {
+    # Configure umask to allow write permissions for the group by default
+    # in addition to the owner.
+    umask 0002
+}
+
 start_prometheus() {
     echo "Starting Prometheus ..."
     echo
@@ -10,10 +16,6 @@ start_prometheus() {
     local config="${PROMETHEUS_CONFIG:-${prometheus_config:?}}"
     unset PROMETHEUS_CONFIG
     unset prometheus_config
-
-    # Configure umask to allow write permissions for the group by default
-    # in addition to the owner.
-    umask 0002
 
     exec prometheus \
         --config.file ${config:?} \
@@ -23,4 +25,5 @@ start_prometheus() {
         "$@"
 }
 
+set_umask
 start_prometheus "$@"
