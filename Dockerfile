@@ -76,9 +76,8 @@ EXPOSE 9090
 HEALTHCHECK --start-period=1m --interval=30s --timeout=3s CMD curl --silent --fail --location http://localhost:9090/-/healthy
 
 ENV USER=${USER_NAME}
-ENV PATH="/opt/bin:${PATH}"
-
 USER ${USER_NAME}:${GROUP_NAME}
 WORKDIR /home/${USER_NAME}
+
 CMD ["start-prometheus"]
 STOPSIGNAL SIGQUIT
