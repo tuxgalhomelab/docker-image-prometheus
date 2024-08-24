@@ -73,7 +73,14 @@ RUN --mount=type=bind,target=/scripts,from=with-scripts,source=/scripts \
 EXPOSE 9090
 
 # Use the healthcheck command part of prometheus as the health checker.
-HEALTHCHECK --start-period=1m --interval=30s --timeout=3s CMD curl --silent --fail --location http://localhost:9090/-/healthy
+HEALTHCHECK \
+    --start-period=15s --interval=30s --timeout=3s \
+    CMD curl \
+        --silent \
+        --fail \
+        --location \
+        --show-error \
+        http://localhost:9090/-/healthy
 
 ENV USER=${USER_NAME}
 USER ${USER_NAME}:${GROUP_NAME}
