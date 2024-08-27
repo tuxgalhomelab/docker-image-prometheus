@@ -35,6 +35,7 @@ RUN --mount=type=bind,target=/scripts,from=with-scripts,source=/scripts \
         --silent \
         --fail \
         --location \
+        --show-error \
         --remote-name \
         --output-dir /tmp/prometheus \
         https://github.com/prometheus/prometheus/releases/download/${PROMETHEUS_VERSION:?}/prometheus-${PROMETHEUS_VERSION#v}.linux-${PKG_ARCH:?}.tar.gz \
@@ -42,6 +43,7 @@ RUN --mount=type=bind,target=/scripts,from=with-scripts,source=/scripts \
         --silent \
         --fail \
         --location \
+        --show-error \
         --remote-name \
         --output-dir /tmp/prometheus \
         "https://github.com/prometheus/prometheus/releases/download/${PROMETHEUS_VERSION:?}/sha256sums.txt" \
