@@ -32,22 +32,12 @@ RUN --mount=type=bind,target=/scripts,from=with-scripts,source=/scripts \
     # Download and install the release. \
     && mkdir -p /tmp/prometheus \
     && PKG_ARCH="$(dpkg --print-architecture)" \
-    && curl \
-        --silent \
-        --fail \
-        --location \
-        --show-error \
-        --remote-name \
-        --output-dir /tmp/prometheus \
+    && homelab download-file-to \
         https://github.com/prometheus/prometheus/releases/download/${PROMETHEUS_VERSION:?}/prometheus-${PROMETHEUS_VERSION#v}.linux-${PKG_ARCH:?}.tar.gz \
-    && curl \
-        --silent \
-        --fail \
-        --location \
-        --show-error \
-        --remote-name \
-        --output-dir /tmp/prometheus \
+        /tmp/prometheus \
+    && homelab download-file-to \
         "https://github.com/prometheus/prometheus/releases/download/${PROMETHEUS_VERSION:?}/sha256sums.txt" \
+        /tmp/prometheus \
     && pushd /tmp/prometheus \
     && grep "prometheus-${PROMETHEUS_VERSION#v}.linux-${PKG_ARCH:?}.tar.gz" sha256sums.txt | sha256sum -c \
     && tar xvf prometheus-${PROMETHEUS_VERSION#v}.linux-${PKG_ARCH:?}.tar.gz \
