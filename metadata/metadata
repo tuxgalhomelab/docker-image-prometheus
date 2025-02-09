@@ -5,7 +5,7 @@ set -E -e -o pipefail
 
 BASE_IMAGE_CONFIG_KEY_PREFIX="BASE_IMAGE"
 
-UPSTREAM_PACKAGE_NAME="Prometheus"
+UPSTREAM_PACKAGE_NAME="Prometheus/Go/nvm/Node.js"
 UPSTREAM_PROMETHEUS_VERSION_CONFIG_KEY="PROMETHEUS_VERSION"
 UPSTREAM_PROMETHEUS_GIT_REPO="https://github.com/prometheus/prometheus"
 GIT_REPO_TAGS_CUSTOM_FILTERING_REGEX='^v.+(\-(rc|alpha|beta|retract).*|\+.+)$'
