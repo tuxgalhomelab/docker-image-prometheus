@@ -40,7 +40,6 @@ RUN \
     && mkdir -p /output/{bin,scripts,configs} \
     && cp /root/prometheus-build/{prometheus,promtool} /output/bin \
     && cp /root/prometheus-build/documentation/examples/prometheus.yml /output/configs \
-    && cp -rf /root/prometheus-build/{consoles,console_libraries} /output/ \
     && cp /scripts/* /output/scripts
 
 FROM ${BASE_IMAGE_NAME}:${BASE_IMAGE_TAG}
@@ -65,7 +64,6 @@ RUN --mount=type=bind,target=/prometheus-build,from=builder,source=/output \
     && mkdir -p /opt/prometheus-${PROMETHEUS_VERSION:?}/bin /data/prometheus/{config,data} \
     && cp /prometheus-build/bin/{prometheus,promtool} /opt/prometheus-${PROMETHEUS_VERSION:?}/bin \
     && cp /prometheus-build/configs/prometheus.yml /data/prometheus/config/ \
-    && cp -rf /prometheus-build/{consoles,console_libraries} /data/prometheus/ \
     && ln -sf /opt/prometheus-${PROMETHEUS_VERSION:?} /opt/prometheus \
     && ln -sf /opt/prometheus/bin/prometheus /opt/bin/prometheus \
     && ln -sf /opt/prometheus/bin/promtool /opt/bin/promtool \
