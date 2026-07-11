@@ -10,6 +10,7 @@ FROM ${GO_IMAGE_NAME}:${GO_IMAGE_TAG} AS builder
 ARG NVM_VERSION
 ARG NVM_SHA256_CHECKSUM
 ARG IMAGE_NODEJS_VERSION
+ARG PNPM_VERSION
 ARG PROMETHEUS_VERSION
 
 COPY scripts/start-prometheus.sh /scripts/
@@ -34,6 +35,7 @@ RUN \
     && (find /patches -iname *.diff -print0 | sort -z | xargs -0 -r -n 1 patch -p2 -i) \
     && source /opt/nvm/nvm.sh \
     # Build prometheus. \
+    && npm install -g pnpm@${PNPM_VERSION:?} \
     && make build \
     && popd \
     # Copy the build artifacts. \
